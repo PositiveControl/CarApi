@@ -8,7 +8,8 @@ end
 gem 'rails', '~> 5.0.6'
 gem 'pg', '~> 0.18'
 gem 'puma', '~> 3.0'
-gem 'jbuilder', '~> 2.5'
+gem 'pipe-ruby', :require => 'pipe'
+gem 'fast_jsonapi'
 
 group :test do
   gem 'rspec-rails'
