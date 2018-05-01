@@ -12,7 +12,7 @@ gem 'jbuilder', '~> 2.5'
 
 group :test do
   gem 'rspec-rails'
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   gem 'pry'
 end
 
