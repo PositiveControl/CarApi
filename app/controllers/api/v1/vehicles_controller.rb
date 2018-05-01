@@ -3,9 +3,17 @@ module Api::V1
     include Pipe
 
     def create
-      response = pipe(vehicle_params, :through => [
-        :initialize_response, :build_vehicle,
-        :create_vehicle, :serialize_response
+      response = pipe(vehicle_params.to_h, :through => [
+        :initialize_response, :build_vehicle, :create_vehicle,
+        :serialize_response
+      ])
+
+      render response
+    end
+
+    def show
+      response = pipe(params[:id], :through => [
+        :initialize_response, :get_vehicle, :serialize_response
       ])
 
       render response
@@ -14,13 +22,13 @@ module Api::V1
     private
 
     def initialize_response(response)
-      response.to_h
+      {:params => response}
     end
 
     def build_vehicle(response)
       response.tap { |resp|
         resp.merge!(
-          :vehicle => Vehicle.new(vehicle_params)
+          :vehicle => Vehicle.new(resp[:params])
         )
       }
     end
@@ -30,30 +38,47 @@ module Api::V1
         begin
           resp[:success] = resp[:vehicle].save!
         rescue => error
-          resp.merge!(:error => error)
+          resp.merge!(:error => [400, error])
+        end
+      }
+    end
+
+    def get_vehicle(response)
+      response.tap { |resp|
+        begin
+          resp[:vehicle] = Vehicle.find(resp[:params])
+        rescue => error
+          resp.merge!(:error => [404, error])
         end
       }
     end
 
     def serialize_response(response)
+      # binding.pry
       if response[:error]
-        { :json => response[:error], :status => 400 }
+        {
+          :json => {:errors => [response[:error][1]]},
+          :status => response[:error][0]
+        }
       elsif response[:success]
-        { :json => response[:success], :status => 201 }
+        {:status => 201}
       elsif response[:vehicle]
         {
           :json => VehicleSerializer
-            .new(response[:vehicle])
-            .serializable_hash,
+              .new(response[:vehicle])
+              .serializable_hash,
           :status => 200
         }
       else
-        { :json => 'UnhandledExeption', :status => 400 }
+        {
+          :json => {:errors => ['UnhandledExeption']},
+          :status => 400
+        }
       end
     end
 
     def vehicle_params
-      params.require(:vehicle).permit(:utility_class)
+      params.require(:data).permit(:utility_class, :id)
     end
   end
 end
