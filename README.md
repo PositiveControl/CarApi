@@ -1,24 +1,149 @@
-# README
+# Carapi API Specification
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+#### Base URL = api/v1
 
-Things you may want to cover:
+## /vehicles
 
-* Ruby version
+#### POST - Create
+Attributes: utility_class (string; required)
 
-* System dependencies
+Request body:
+```
+{ 
+    "data": {
+        "utility_class":"Dump Truck"
+    }
+}
+```
+Response body (201 Created):
+```
+```
 
-* Configuration
+## /vehicles/:id
 
-* Database creation
+#### GET - Show
+Attributes: none
 
-* Database initialization
+Request body:
+```
 
-* How to run the test suite
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+Response body (200 OK):
+```
+{
+    "data": {
+        "id": "1",
+        "type": "vehicle",
+        "attributes": {
+            "utility_class": "Dump Truck"
+        }
+    }
+}
+```
 
-* Deployment instructions
+## /vehicles/:id
 
-* ...
+#### PUT - Update
+Attributes: utility_class (string; required)
+
+Request body:
+```
+{ 
+    "data": {
+        "utility_class":"Earth Mover"
+    }
+}
+```
+
+Response body (200 OK):
+```
+{
+    "data": {
+        "id": "1",
+        "type": "vehicle",
+        "attributes": {
+            "utility_class": "Earth Mover"
+        }
+    }
+}
+```
+
+## /vehicles/:id
+
+#### DELETE - Delete
+Attributes: none
+
+Request body:
+```
+```
+
+Response body (201 Created):
+```
+```
+
+## /vehicles
+
+#### GET - Index
+Attributes: none
+
+Request body:
+```
+```
+
+Response body (200 OK):
+```
+{
+    "data": [
+        {
+            "id": "2",
+            "type": "vehicle",
+            "attributes": {
+                "utility_class": "Sedan"
+            }
+        },
+        {
+            "id": "3",
+            "type": "vehicle",
+            "attributes": {
+                "utility_class": "Coupé"
+            }
+        },
+        {
+            "id": "4",
+            "type": "vehicle",
+            "attributes": {
+                "utility_class": "Truck"
+            }
+        },
+        {
+            "id": "5",
+            "type": "vehicle",
+            "attributes": {
+                "utility_class": "SUV"
+            }
+        },
+        {
+            "id": "6",
+            "type": "vehicle",
+            "attributes": {
+                "utility_class": "Crossover"
+            }
+        },
+        {
+            "id": "7",
+            "type": "vehicle",
+            "attributes": {
+                "utility_class": "Motorcycle"
+            }
+        },
+        {
+            "id": "8",
+            "type": "vehicle",
+            "attributes": {
+                "utility_class": "Earth Mover"
+            }
+        }
+    ]
+}
+```
