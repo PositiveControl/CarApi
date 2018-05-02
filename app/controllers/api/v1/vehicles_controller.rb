@@ -2,6 +2,15 @@ module Api::V1
   class VehiclesController < ApplicationController
     include Pipe
 
+    def index
+      response = pipe({}, :through => [
+        :initialize_response, :get_vehicles,
+        :serialize_response
+      ])
+
+      render response
+    end
+
     def create
       response = pipe(vehicle_params.to_h, :through => [
         :initialize_response, :build_vehicle, :create_vehicle,
@@ -17,6 +26,14 @@ module Api::V1
       ])
 
       render response
+    end
+
+    def update
+
+    end
+
+    def delete
+
     end
 
     private
@@ -53,8 +70,14 @@ module Api::V1
       }
     end
 
+    def get_vehicles(response)
+      # TODO: pagination
+      response.tap {|resp|
+        resp[:vehicle] = Vehicle.all.limit(100)
+      }
+    end
+
     def serialize_response(response)
-      # binding.pry
       if response[:error]
         {
           :json => {:errors => [response[:error][1]]},

@@ -1,11 +1,13 @@
 module ApiResponseHelper
-  def objects
+  def response_body
     JSON.parse(response.body)
-  rescue
-    []
+  end
+
+  def objects
+    response_body['data'] || []
   end
 
   def errors
-    response.success? ? [] : objects
+    response.success? ? [] : response_body['errors']
   end
 end
