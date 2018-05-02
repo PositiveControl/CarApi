@@ -4,8 +4,7 @@ module Api::V1
 
     def index
       response = pipe({}, :through => [
-        :initialize_response, :get_vehicles,
-        :serialize_response
+        :initialize_response, :get_vehicles, :serialize_response
       ])
 
       render response
@@ -13,7 +12,7 @@ module Api::V1
 
     def create
       response = pipe(vehicle_params.to_h, :through => [
-        :initialize_response, :build_vehicle, :create_vehicle,
+        :initialize_response, :build_vehicle, :save_vehicle,
         :serialize_response
       ])
 
@@ -29,7 +28,12 @@ module Api::V1
     end
 
     def update
+      response  = pipe(vehicle_params, :through => [
+        :initialize_response, :get_vehicle, :update_vehicle,
+        :serialize_response
+      ])
 
+      render response
     end
 
     def delete
@@ -50,7 +54,14 @@ module Api::V1
       }
     end
 
-    def create_vehicle(response)
+    def update_vehicle(response)
+      response.tap { |resp|
+        resp[:vehicle].update_attributes(resp[:params])
+        resp[:vehicle] = resp[:vehicle].reload
+      }
+    end
+
+    def save_vehicle(response)
       response.tap { |resp|
         begin
           resp[:success] = resp[:vehicle].save!
@@ -63,7 +74,7 @@ module Api::V1
     def get_vehicle(response)
       response.tap { |resp|
         begin
-          resp[:vehicle] = Vehicle.find(resp[:params])
+          resp[:vehicle] = Vehicle.find(params[:id])
         rescue => error
           resp.merge!(:error => [404, error])
         end

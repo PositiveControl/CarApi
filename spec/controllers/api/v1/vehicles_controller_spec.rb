@@ -83,4 +83,59 @@ RSpec.describe Api::V1::VehiclesController, type: :controller do
       end
     end
   end
+
+  describe '#update' do
+    context 'success' do
+      it 'returns successful response' do
+        vehicle = create(:vehicle)
+
+        put :update,
+          :format => :json,
+          :params => {
+            :id => vehicle.id,
+            :data => {
+              :utility_class => 'Dump Truck'
+            }
+          }
+
+        expect(response).to be_success
+      end
+
+      it 'updates an object' do
+        vehicle = create(:vehicle)
+
+        expect(vehicle.utility_class).to_not eq('Dump Truck')
+
+        put :update,
+          :format => :json,
+          :params => {
+            :id => vehicle.id,
+            :data => {
+              :utility_class => 'Dump Truck'
+            }
+          }
+
+        expect(
+          objects['attributes']['utility_class']
+        ).to eq('Dump Truck')
+      end
+    end
+
+    context 'failure' do
+      it 'returns an error' do
+        vehicle = create(:vehicle)
+        post :create,
+          :format => :json,
+          :params => {
+            :id => vehicle.id,
+            :data => {
+              :utility_class => nil
+            }
+          }
+
+        expect(response.status).to eq(400)
+        expect(errors).to be_present
+      end
+    end
+  end
 end
