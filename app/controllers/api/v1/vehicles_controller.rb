@@ -36,8 +36,13 @@ module Api::V1
       render response
     end
 
-    def delete
+    def destroy
+      response = pipe({}, :through => [
+        :initialize_response, :get_vehicle,
+        :destroy_vehicle, :serialize_response
+      ])
 
+      render response
     end
 
     private
@@ -65,17 +70,27 @@ module Api::V1
       response.tap { |resp|
         begin
           resp[:success] = resp[:vehicle].save!
-        rescue => error
+        rescue StandardError => error
           resp.merge!(:error => [400, error])
         end
+      }
+    end
+
+    def destroy_vehicle(response)
+      response.tap { |resp|
+        resp[:success] = resp[:vehicle].try(:destroy)
       }
     end
 
     def get_vehicle(response)
       response.tap { |resp|
         begin
-          resp[:vehicle] = Vehicle.find(params[:id])
-        rescue => error
+          if resp[:vehicle]
+            resp[:vehicle] = Vehicle.find(params[:id])
+          else
+            resp.merge!(:vehicle => Vehicle.find(params[:id]))
+          end
+        rescue ActiveRecord::RecordNotFound => error
           resp.merge!(:error => [404, error])
         end
       }
@@ -89,6 +104,7 @@ module Api::V1
     end
 
     def serialize_response(response)
+      #TODO: move response error handling into a module
       if response[:error]
         {
           :json => {:errors => [response[:error][1]]},

@@ -138,4 +138,29 @@ RSpec.describe Api::V1::VehiclesController, type: :controller do
       end
     end
   end
+
+  describe '#destroy' do
+    context 'success' do
+      it 'returns successful response' do
+        vehicle = create(:vehicle)
+
+        delete :destroy,
+          :format => :json,
+          :params => { :id => vehicle.id }
+
+        expect(response).to be_success
+      end
+    end
+
+    context 'failure' do
+      it 'returns a not found error' do
+        delete :destroy,
+          :format => :json,
+          :params => { :id => 0 }
+
+        expect(response.status).to eq(404)
+        expect(errors).to be_present
+      end
+    end
+  end
 end
