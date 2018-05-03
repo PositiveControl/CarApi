@@ -1,49 +1,36 @@
 module Api::V1
   class VehiclesController < ApplicationController
-    include Pipe
     include CarApiCommon::Controllers
+    include Pipe
 
     def index
-      response = pipe({}, :through => [
+      render pipe({}, :through => [
         :initialize_response, :retrieve_vehicles, :serialize_vehicles
       ])
-
-      render response
     end
 
     def create
-      response = pipe(vehicle_params.to_h, :through => [
-        :initialize_response, :build_vehicle, :save_vehicle,
-        :serialize_vehicles
+      render pipe(vehicle_params.to_h, :through => [
+        :initialize_response, :build_vehicle, :save_vehicle, :serialize_vehicles
       ])
-
-      render response
     end
 
     def show
-      response = pipe(params[:id], :through => [
+      render pipe(params[:id], :through => [
         :initialize_response, :get_vehicle, :serialize_vehicles
       ])
-
-      render response
     end
 
     def update
-      response  = pipe(vehicle_params, :through => [
-        :initialize_response, :get_vehicle, :update_vehicle,
-        :serialize_vehicles
+      render pipe(vehicle_params, :through => [
+        :initialize_response, :get_vehicle, :update_vehicle, :serialize_vehicles
       ])
-
-      render response
     end
 
     def destroy
-      response = pipe({}, :through => [
-        :initialize_response, :get_vehicle,
-        :destroy_vehicle, :serialize_vehicles
+      render pipe({}, :through => [
+        :initialize_response, :get_vehicle, :destroy_vehicle, :serialize_vehicles
       ])
-
-      render response
     end
 
     private
