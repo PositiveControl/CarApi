@@ -1,33 +1,33 @@
 require 'rails_helper'
 
-RSpec.describe Api::V1::ModelsController, type: :controller do
+RSpec.describe Api::V1::OptionsController, type: :controller do
   include ApiResponseHelper
-
-  let!(:make) { create(:make) }
 
   describe '#index' do
     context 'success' do
       it 'returns a successful response' do
-        create(:model, :make => make)
+        create(:option)
 
-        get :index, :format => :json, :params => { :make_id => make.id }
+        get :index, :format => :json
 
         expect(response).to be_success
       end
 
       context 'success' do
         it 'returns requested object' do
-          create(:model, :make => make)
+          create(:option)
 
-          get :index, :format => :json, :params => { :make_id => make.id }
+          get :index, :format => :json
 
           expect(objects.first['id']).to be_present
         end
 
         it 'returns multiple requested objects' do
-          10.times { create(:model, :make => make) }
+          10.times {
+            create(:option, :name => "#{rand(10000)}")
+          }
 
-          get :index, :format => :json, :params => { :make_id => make.id }
+          get :index, :format => :json
 
           expect(objects.count).to eq(10)
         end
@@ -41,8 +41,10 @@ RSpec.describe Api::V1::ModelsController, type: :controller do
         post :create,
           :format => :json,
           :params => {
-            :make_id => make.id,
-            :data => { :model_title => 'Windstar', :make_id => make.id }
+            :data => {
+              :name => 'Chrome Grill',
+              :description => 'It is not for cooking.'
+            }
           }
 
         expect(response).to be_success
@@ -54,8 +56,7 @@ RSpec.describe Api::V1::ModelsController, type: :controller do
         post :create,
           :format => :json,
           :params => {
-            :make_id => make.id,
-            :data => { :model_title => nil }
+            :data => { :name => nil }
           }
 
         expect(response.status).to eq(400)
@@ -65,16 +66,13 @@ RSpec.describe Api::V1::ModelsController, type: :controller do
   end
 
   describe '#show' do
-    let(:model) { create(:model, :make => make) }
+    let(:option) { create(:option) }
 
     context 'success' do
       it 'creates an object' do
         get :show,
           :format => :json,
-          :params => {
-            :make_id => make.id,
-            :id => model.id
-          }
+          :params => { :id => option.id }
 
         expect(response).to be_success
       end
@@ -83,12 +81,8 @@ RSpec.describe Api::V1::ModelsController, type: :controller do
     context 'not found' do
       it 'returns an error' do
         get :show,
-          :make_id => make.id,
           :format => :json,
-          :params => {
-            :make_id => make.id,
-            :id => 0
-          }
+          :params => { :id => 0 }
 
         expect(response.status).to eq(404)
       end
@@ -98,15 +92,15 @@ RSpec.describe Api::V1::ModelsController, type: :controller do
   describe '#update' do
     context 'success' do
       it 'returns successful response' do
-        model = create(:model, :make => make)
+        option = create(:option)
 
         put :update,
           :format => :json,
           :params => {
-            :make_id => make.id,
-            :id => model.id,
+            :id => option.id,
             :data => {
-              :model_title => 'M3'
+              :name => 'Runflat Tires',
+              :description => 'Best tires for beating the cops!'
             }
           }
 
@@ -114,36 +108,35 @@ RSpec.describe Api::V1::ModelsController, type: :controller do
       end
 
       it 'updates an object' do
-        model = create(:model, :make => make)
+        option = create(:option)
 
-        expect(model.model_title).to_not eq('Karma')
+        expect(option.name).to_not eq('Alligator Skin Seats')
 
         put :update,
           :format => :json,
           :params => {
-            :make_id => make.id,
-            :id => model.id,
+            :id => option.id,
             :data => {
-              :model_title => 'Karma'
+              :name => 'Alligator Skin Seats',
             }
           }
 
         expect(
-          objects['attributes']['model_title']
-        ).to eq('Karma')
+          objects['attributes']['name']
+        ).to eq('Alligator Skin Seats')
       end
     end
 
     context 'failure' do
       it 'returns an error' do
-        model = create(:model, :make => make)
+        option = create(:option)
         post :create,
           :format => :json,
           :params => {
-            :make_id => make.id,
-            :id => model.id,
+            :id => option.id,
             :data => {
-              :model_title => nil
+              :name => nil,
+              :description => 'Best tires for beating the cops!'
             }
           }
 
@@ -156,14 +149,11 @@ RSpec.describe Api::V1::ModelsController, type: :controller do
   describe '#destroy' do
     context 'success' do
       it 'returns successful response' do
-        model = create(:model, :make => make)
+        option = create(:option)
 
         delete :destroy,
           :format => :json,
-          :params => {
-            :make_id => make.id,
-            :id => model.id
-          }
+          :params => { :id => option.id }
 
         expect(response).to be_success
       end
@@ -173,10 +163,7 @@ RSpec.describe Api::V1::ModelsController, type: :controller do
       it 'returns a not found error' do
         delete :destroy,
           :format => :json,
-          :params => {
-            :make_id => make.id,
-            :id => 0
-          }
+          :params => { :id => 0 }
 
         expect(response.status).to eq(404)
         expect(errors).to be_present
