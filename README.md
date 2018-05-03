@@ -13,6 +13,7 @@
 Requirements: 
 * Ruby 2.5.0 (I believe it does work on 2.4)
 * Rails 5.0.1
+* PostgreSQL
 
 
 1. Clone repository
