@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180503181305) do
+ActiveRecord::Schema.define(version: 20180503184207) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,7 +20,9 @@ ActiveRecord::Schema.define(version: 20180503181305) do
   end
 
   create_table "models", force: :cascade do |t|
-    t.string "model_title"
+    t.string  "model_title"
+    t.integer "make_id"
+    t.index ["make_id"], name: "index_models_on_make_id", using: :btree
   end
 
   create_table "vehicles", force: :cascade do |t|
