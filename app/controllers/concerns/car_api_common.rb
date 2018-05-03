@@ -106,6 +106,8 @@ module CarApiCommon
           retrieve_objects(params, klass, klass_sym)
         when :serialize
           serialize_response(params, klass, klass_sym)
+        else
+          super
       end
     end
   end
