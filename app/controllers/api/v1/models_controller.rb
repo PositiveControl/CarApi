@@ -5,7 +5,8 @@ module Api::V1
 
     def index
       render pipe({}, :through => [
-        :initialize_response, :retrieve_models, :serialize_models
+        :initialize_response, :retrieve_models, :filter_results,
+        :serialize_models
       ])
     end
 
@@ -34,6 +35,14 @@ module Api::V1
     end
 
     private
+
+    def filter_results(response)
+      response.tap { |resp|
+        resp[:model] = resp[:model].select { |model|
+          model.make_id.to_s == params[:make_id]
+        }
+      }
+    end
 
     def model_params
       params.require(:data).permit(:model_title, :id, :make_id)

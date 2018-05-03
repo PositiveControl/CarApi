@@ -10,7 +10,18 @@
 
 
 ### <a name="localsetup">Local Setup</a>
+Requirements: 
+* Ruby 2.5.0 (I believe it does work on 2.4)
+* Rails 5.0.1
 
+
+1. Clone repository
+2. `bundle install`
+3. `rake db:setup`
+4. `rake db:migrate`
+5. `rake db:seed`
+6. `be rspec spec`
+7. `rails server`
 
 
 ### Request Format
@@ -340,13 +351,14 @@ Response body (200 OK):
 ## <a name="models">/makes/:id/models</a>
 
 #### POST - Create
-Attributes: model_title (string; required)
+Attributes: model_title, make_id (string, integer; both required)
 
 Request body:
 ```
 { 
     "data": {
-        "model_title":"Zonda"
+        "model_title":"Zonda",
+        "make_id": "1"
     }
 }
 ```
@@ -371,7 +383,8 @@ Response body (200 OK):
         "id": "1",
         "type": "model",
         "attributes": {
-            "model_title": "Zonda"
+            "model_title": "Zonda",
+            "make_id": "1"
         }
     }
 }
@@ -386,7 +399,7 @@ Request body:
 ```
 { 
     "data": {
-        "model_title":"Huayra"
+        "model_title":"Zonda Cinque Roadster"
     }
 }
 ```
@@ -395,10 +408,12 @@ Response body (200 OK):
 ```
 {
     "data": {
-        "id": "2",
+        "id": "1",
         "type": "model",
         "attributes": {
-            "model_title": "Zonda Cinque Roadster"
+            "model_title": "Zonda Cinque Roadster",
+            "make_id": "1"
+            
         }
     }
 }
@@ -434,28 +449,32 @@ Response body (200 OK):
             "id": "2",
             "type": "model",
             "attributes": {
-                "model_title": "Zonda"
+                "model_title": "Zonda",
+                "make_id": "1"
             }
         },
         {
             "id": "3",
             "type": "model",
             "attributes": {
-                "model_title": "Huayra"
+                "model_title": "Huayra",
+                "make_id": "1"
             }
         },
         {
             "id": "4",
             "type": "model",
             "attributes": {
-                "model_title": "Metro"
+                "model_title": "Metro",
+                "make_id": "2"
             }
         },
         {
             "id": "5",
             "type": "model",
             "attributes": {
-                "model_title": "Focus"
+                "model_title": "Focus",
+                "make_id": "3"
             }
         }
     ]
