@@ -2,7 +2,9 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :vehicles
-      resources :makes
+      resources :makes do
+        resources :models
+      end
     end
   end
 end
