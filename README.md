@@ -3,6 +3,7 @@
 ## Contents
 
 - [Local Setup](#localsetup)
+- [Code Walk-through](#walkthrough)
 - [Response/Request Format](#formats)
 - [Endpoints Overview](#endpoints)
 - [Endpoints in Detail](#detail) 
@@ -23,6 +24,58 @@ Requirements:
 5. `rake db:seed`
 6. `be rspec spec`
 7. `rails server`
+
+### <a name="walkthrough">Code Walk-through</a>
+
+Thank you for the opportunity to share my solution to the code challenge and for taking the time to look around!
+As you go through the project, please feel free to leave comments, suggestions, or questions.  The point of this section
+is the hopefully give you a basic understanding of the code structure.  While the API itself is fairly limited in 
+functionality, what's under the hood was a fun exercise in abstraction and metaprogramming.
+
+
+Let's start with the [controllers](https://github.com/PositiveControl/CarApi/tree/master/app/controllers/api/v1), there are four of them all
+namespaced under `Api::V1`.  After looking at two of them, you might wonder: "Did this guy just copy and paste his controllers?".  Why yes I did!
+
+#### How the API is kind of neat
+
+All of the controllers follow the same pattern, using `pipe-ruby` (think of it as *nix pipe for Ruby, also anologous to `|>` in Elixir) they ingest a request, then using the parameters from the 
+request, the controller action initializes a response hash that gets passed to each method in the pipe, building a response hash that is ultimately serialized
+and returned to the client.  Using this pattern allowed me to extract CRUD methods for all controllers into [`CarApiCommon::Controllers`](https://github.com/PositiveControl/CarApi/blob/master/app/controllers/concerns/car_api_common.rb).
+The methods in this module mirror the methods called in the controller pipe with one key difference, instead of `build_vehicle` we have
+[`build_object`](https://github.com/PositiveControl/CarApi/blob/master/app/controllers/concerns/car_api_common.rb#L7) and its method signature is `(response, klass, klass_sym)`.  Like the controller methods, it accepts a response 
+and returns a mutated version of the response hash.  But unlike the controller methods, it requires `klass` string and `klass_sym` symbol to correctly
+route the request.  All method calls in the controller pipe action (sans `initialize_response`) are routed through [`method_missing`](https://github.com/PositiveControl/CarApi/blob/master/app/controllers/concerns/car_api_common.rb#L82).  However, as can be seen
+in [ModelsController](https://github.com/PositiveControl/CarApi/blob/master/app/controllers/api/v1/models_controller.rb)#index, you can easily add methods to the pipe
+at various points to affect the response (ex. [`filter_results`](https://github.com/PositiveControl/CarApi/blob/master/app/controllers/api/v1/models_controller.rb#L39))
+
+Another one of the by-products of using this pattern was that testing was greatly simplified, once I wrote the tests for both success and failure contexts for the first controller, I was able to use the same 
+tests (with minor alterations) for each successive controller, resulting in near 100% test coverage with little effort after writing the first set of tests.
+
+Serialization is handled through Netflix's `fast-jsonapi` gem.  This was my first time using it and I found it ridiculously easy to implement.
+
+#### How the API kind of sucks
+Wonderful... I told how cool the API is, how about how it kinda sucks?  It is called Carapi API after all.  First off, it really doesn't do much, you can create and mutate 
+objects from each endpoint and assign a model to a make, or get all the models for a given make, but there's not much else.
+There's a glaring problem in the Update and Destroy controller actions, they both do two DB queries (select & update/destroy). These actions should be a single query.
+Endpoint error handling is currently handled in [`CarApiCommon::Controllers`](https://github.com/PositiveControl/CarApi/blob/master/app/controllers/concerns/car_api_common.rb),
+as that module gets more complex, error handling should be extracted into its own module.
+
+Thanks again for taking the time to check this out.  I appreciate any and all feedback.
+
+Cheers,
+
+Mark Evans
+
+### Controller Data Flow
+
+```
+Request >
+    Initialize Response ({}) > Validate/Build/Save Object > Serialize Response >
+        Response
+```
+ 
+
+
 
 
 ### Request Format
@@ -460,22 +513,6 @@ Response body (200 OK):
             "attributes": {
                 "model_title": "Huayra",
                 "make_id": "1"
-            }
-        },
-        {
-            "id": "4",
-            "type": "model",
-            "attributes": {
-                "model_title": "Metro",
-                "make_id": "2"
-            }
-        },
-        {
-            "id": "5",
-            "type": "model",
-            "attributes": {
-                "model_title": "Focus",
-                "make_id": "3"
             }
         }
     ]
